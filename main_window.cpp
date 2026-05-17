@@ -20,6 +20,8 @@
 #include <QTextDocument>
 #include <QTextStream>
 #include <QToolBar>
+#include <QFontDialog>
+
 #include <algorithm>
 #include <map>
 #include <sstream>
@@ -144,13 +146,30 @@ void main_window::setup_edit_menu() {
 
 void main_window::setup_format_menu() {
     auto *format_menu = menuBar()->addMenu("Format");
-    auto *text_case_menu = format_menu->addMenu("Text Case");
+
+    auto *action_font =
+            format_menu->addAction("Font...");
+
+    connect(action_font, &QAction::triggered,
+            this,
+            &main_window::choose_font);
+
+    format_menu->addSeparator();
+
+    auto *text_case_menu =
+            format_menu->addMenu("Text Case");
 
     for (const auto &transform: transforms) {
-        const auto *action = text_case_menu->addAction(QString::fromStdString(transform->name()));
-        connect(action, &QAction::triggered, this, [this, &transform] {
-            apply_transform(*transform);
-        });
+        const auto *action =
+                text_case_menu->addAction(
+                    QString::fromStdString(transform->name())
+                );
+
+        connect(action, &QAction::triggered,
+                this,
+                [this, &transform] {
+                    apply_transform(*transform);
+                });
     }
 }
 
@@ -204,27 +223,26 @@ void main_window::setup_search_menu() {
     });
 }
 
-void main_window::setup_tools_menu()
-{
-    auto* tools_menu = menuBar()->addMenu("Tools");
+void main_window::setup_tools_menu() {
+    auto *tools_menu = menuBar()->addMenu("Tools");
 
-    const auto* action_word_freq =
-        tools_menu->addAction("Word Frequency...");
+    const auto *action_word_freq =
+            tools_menu->addAction("Word Frequency...");
 
     connect(action_word_freq, &QAction::triggered,
-        this, [this] {
-            show_word_frequency();
-        });
+            this, [this] {
+                show_word_frequency();
+            });
 
     tools_menu->addSeparator();
 
-    const auto* action_check_spelling =
-        tools_menu->addAction("Check Spelling...");
+    const auto *action_check_spelling =
+            tools_menu->addAction("Check Spelling...");
 
     connect(action_check_spelling, &QAction::triggered,
-        this, [this] {
-            checker->rehighlight();
-        });
+            this, [this] {
+                checker->rehighlight();
+            });
 }
 
 void main_window::apply_transform(const text_transform &transform) const {
@@ -468,43 +486,39 @@ void main_window::show_word_frequency() {
     dialog->exec();
 }
 
-void main_window::show_context_menu(const QPoint& pos)
-{
+void main_window::show_context_menu(const QPoint &pos) {
     QTextCursor cursor =
-        editor->cursorForPosition(pos);
+            editor->cursorForPosition(pos);
 
     cursor.select(QTextCursor::WordUnderCursor);
 
     const QString word = cursor.selectedText();
 
-    QMenu* menu =
-        editor->createStandardContextMenu();
+    QMenu *menu =
+            editor->createStandardContextMenu();
 
     if (!checker->is_correct(word.toStdString())) {
-
         menu->addSeparator();
 
         auto suggestions =
-            checker->suggestions(word.toStdString());
+                checker->suggestions(word.toStdString());
 
-        for (const auto& suggestion : suggestions) {
-
-            QAction* action =
-                new QAction(
-                    QString::fromStdString(suggestion),
-                    menu
-                );
+        for (const auto &suggestion: suggestions) {
+            QAction *action =
+                    new QAction(
+                        QString::fromStdString(suggestion),
+                        menu
+                    );
 
             connect(action, &QAction::triggered,
-                this,
-                [this, cursor, suggestion]() mutable {
+                    this,
+                    [this, cursor, suggestion]() mutable {
+                        QTextCursor c = cursor;
 
-                    QTextCursor c = cursor;
-
-                    c.insertText(
-                        QString::fromStdString(suggestion)
-                    );
-                });
+                        c.insertText(
+                            QString::fromStdString(suggestion)
+                        );
+                    });
 
             menu->addAction(action);
         }
@@ -513,4 +527,35 @@ void main_window::show_context_menu(const QPoint& pos)
     menu->exec(editor->mapToGlobal(pos));
 
     delete menu;
+}
+
+void main_window::choose_font()
+{
+    bool ok = false;
+
+    QFont font =
+        QFontDialog::getFont(
+            &ok,
+            editor->currentFont(),
+            this,
+            "Choose Font"
+        );
+
+    if (!ok) {
+        return;
+    }
+
+    QTextCursor cursor = editor->textCursor();
+
+    if (!cursor.hasSelection()) {
+        cursor.select(QTextCursor::Document);
+    }
+
+    QTextCharFormat format;
+
+    format.setFont(font);
+
+    cursor.mergeCharFormat(format);
+
+    editor->mergeCurrentCharFormat(format);
 }

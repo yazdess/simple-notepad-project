@@ -33,7 +33,7 @@ private:
     void update_word_and_line_count();
 
     void show_context_menu(const QPoint& pos);
-
+    void choose_font();
 
     void open_file();
     void save_file();
