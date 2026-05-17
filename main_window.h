@@ -2,6 +2,7 @@
 #define MAIN_WINDOW_H
 
 #include "text_transform.h"
+#include "spell_checker.h"
 
 #include <QDialog>
 #include <QMainWindow>
@@ -31,6 +32,9 @@ private:
     void setup_status_bar();
     void update_word_and_line_count();
 
+    void show_context_menu(const QPoint& pos);
+
+
     void open_file();
     void save_file();
     void save_file_as();
@@ -53,6 +57,8 @@ private:
 
     QDialog* find_replace_dlg { nullptr };
     std::unique_ptr<Ui::find_replace_dialog> find_replace_ui;
+
+    spell_checker* checker { nullptr };
 };
 
 #endif // MAIN_WINDOW_H
