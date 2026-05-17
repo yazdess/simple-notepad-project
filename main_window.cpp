@@ -142,6 +142,7 @@ void main_window::setup_format_toolbar()
 
     auto* action_bold = toolbar->addAction(QIcon("data/images/bold.svg"), "Bold");
     action_bold->setCheckable(true);
+    action_bold->setShortcut(QKeySequence("Ctrl+B"));
     connect(action_bold, &QAction::triggered, this, [this](const bool checked) {
         QTextCharFormat fmt;
         fmt.setFontWeight(checked ? QFont::Bold : QFont::Normal);
@@ -150,6 +151,7 @@ void main_window::setup_format_toolbar()
 
     auto* action_italic = toolbar->addAction(QIcon("data/images/italic.svg"), "Italic");
     action_italic->setCheckable(true);
+    action_italic->setShortcut(QKeySequence("Ctrl+I"));
     connect(action_italic, &QAction::triggered, this, [this](const bool checked) {
         QTextCharFormat fmt;
         fmt.setFontItalic(checked);
@@ -158,6 +160,7 @@ void main_window::setup_format_toolbar()
 
     auto* action_underline = toolbar->addAction(QIcon("data/images/underline.svg"), "Underline");
     action_underline->setCheckable(true);
+    action_underline->setShortcut(QKeySequence("Ctrl+U"));
     connect(action_underline, &QAction::triggered, this, [this](const bool checked) {
         QTextCharFormat fmt;
         fmt.setFontUnderline(checked);
