@@ -25,6 +25,7 @@ private:
     void setup_file_menu();
     void setup_edit_menu();
     void setup_format_menu();
+    void setup_format_toolbar();
     void setup_search_menu();
     void setup_tools_menu();
     void setup_status_bar();

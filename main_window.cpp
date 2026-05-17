@@ -43,6 +43,7 @@ main_window::main_window()
     setup_file_menu();
     setup_edit_menu();
     setup_format_menu();
+    setup_format_toolbar();
     setup_search_menu();
     setup_tools_menu();
     setup_status_bar();
@@ -132,6 +133,43 @@ void main_window::setup_format_menu()
             apply_transform(*transform);
         });
     }
+}
+
+void main_window::setup_format_toolbar()
+{
+    auto* toolbar = addToolBar("Format");
+    toolbar->setIconSize(QSize(16, 16));
+
+    auto* action_bold = toolbar->addAction(QIcon("data/images/bold.svg"), "Bold");
+    action_bold->setCheckable(true);
+    connect(action_bold, &QAction::triggered, this, [this](const bool checked) {
+        QTextCharFormat fmt;
+        fmt.setFontWeight(checked ? QFont::Bold : QFont::Normal);
+        editor->mergeCurrentCharFormat(fmt);
+    });
+
+    auto* action_italic = toolbar->addAction(QIcon("data/images/italic.svg"), "Italic");
+    action_italic->setCheckable(true);
+    connect(action_italic, &QAction::triggered, this, [this](const bool checked) {
+        QTextCharFormat fmt;
+        fmt.setFontItalic(checked);
+        editor->mergeCurrentCharFormat(fmt);
+    });
+
+    auto* action_underline = toolbar->addAction(QIcon("data/images/underline.svg"), "Underline");
+    action_underline->setCheckable(true);
+    connect(action_underline, &QAction::triggered, this, [this](const bool checked) {
+        QTextCharFormat fmt;
+        fmt.setFontUnderline(checked);
+        editor->mergeCurrentCharFormat(fmt);
+    });
+
+    connect(editor, &QTextEdit::currentCharFormatChanged,
+        this, [action_bold, action_italic, action_underline](const QTextCharFormat& fmt) {
+            action_bold->setChecked(fmt.fontWeight() == QFont::Bold);
+            action_italic->setChecked(fmt.fontItalic());
+            action_underline->setChecked(fmt.fontUnderline());
+        });
 }
 
 
